@@ -33,19 +33,19 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         cd data_consistency_checker
-        pyinstaller --onefile --name "data_checker_linux" --add-data "config/*:config/" main.py
+        pyinstaller --onefile --windowed --name "data_checker_linux" --add-data "config/*:config/" gui_main.py
 
     - name: Build with PyInstaller (Windows)
       if: matrix.os == 'windows-latest'
       run: |
         cd data_consistency_checker
-        pyinstaller --onefile --name "data_checker_windows" --add-data "config/*;config/" main.py
+        pyinstaller --onefile --windowed --name "data_checker_windows" --add-data "config/*;config/" gui_main.py
 
     - name: Build with PyInstaller (macOS)
       if: matrix.os == 'macos-latest'
       run: |
         cd data_consistency_checker
-        pyinstaller --onefile --name "data_checker_macos" --add-data "config/*:config/" main.py
+        pyinstaller --onefile --windowed --name "data_checker_macos" --add-data "config/*:config/" gui_main.py
 
     - name: Upload Linux artifact
       if: matrix.os == 'ubuntu-latest'
