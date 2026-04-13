@@ -20,7 +20,13 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadFile('index.html');
+  const isDev = process.env.NODE_ENV === 'development';
+  
+  if (isDev) {
+    mainWindow.loadURL('http://localhost:5173');
+  } else {
+    mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
+  }
 
   mainWindow.webContents.openDevTools({ mode: 'detach' });
 }

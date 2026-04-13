@@ -37,12 +37,12 @@
     "appId": "com.example.data-consistency-checker",
     "productName": "数据一致性自动化核对工具",
     "directories": {
-      "output": "dist"
+      "output": "release"
     },
     "files": [
       "main.js",
-      "index.html",
-      "dist/**/*"
+      "dist/**/*",
+      "public/**/*"
     ],
     "mac": {
       "target": "dmg"
