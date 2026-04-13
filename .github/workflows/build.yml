@@ -1,0 +1,89 @@
+name: Build Executable
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.10"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r data_consistency_checker/requirements.txt
+
+    - name: Build with PyInstaller (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        cd data_consistency_checker
+        pyinstaller --onefile --name "data_checker_linux" --add-data "config/*:config/" main.py
+
+    - name: Build with PyInstaller (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd data_consistency_checker
+        pyinstaller --onefile --name "data_checker_windows" --add-data "config/*;config/" main.py
+
+    - name: Build with PyInstaller (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        cd data_consistency_checker
+        pyinstaller --onefile --name "data_checker_macos" --add-data "config/*:config/" main.py
+
+    - name: Upload Linux artifact
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: data_checker_linux
+        path: data_consistency_checker/dist/data_checker_linux
+
+    - name: Upload Windows artifact
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: data_checker_windows
+        path: data_consistency_checker/dist/data_checker_windows.exe
+
+    - name: Upload macOS artifact
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: data_checker_macos
+        path: data_consistency_checker/dist/data_checker_macos
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v1.0.${{ github.run_number }}
+        generate_release_notes: true
+        files: |
+          data_checker_linux/data_checker_linux
+          data_checker_windows/data_checker_windows.exe
+          data_checker_macos/data_checker_macos
