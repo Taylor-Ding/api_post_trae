@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "main": "main.js",
   "type": "module",
+  "description": "数据一致性自动化核对工具 - 分布式系统查-发-查-比数据一致性检查",
+  "author": "Taylor Ding <taylor.ding@example.com>",
+  "homepage": "https://github.com/Taylor-Ding/api_post_trae",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -48,7 +51,8 @@
       "target": "nsis"
     },
     "linux": {
-      "target": "deb"
+      "target": "deb",
+      "maintainer": "Taylor Ding <taylor.ding@example.com>"
     }
   }
 }
