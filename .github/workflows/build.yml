@@ -22,34 +22,30 @@ jobs:
       with:
         node-version: 20.x
         cache: 'npm'
+        cache-dependency-path: 'frontend/package-lock.json'
 
     - name: Install dependencies
-      run: |
-        cd frontend
-        npm install
+      working-directory: frontend
+      run: npm install
 
     - name: Build React app
-      run: |
-        cd frontend
-        npm run build
+      working-directory: frontend
+      run: npm run build
 
     - name: Build Electron app (Linux)
       if: matrix.os == 'ubuntu-latest'
-      run: |
-        cd frontend
-        npx electron-builder --linux
+      working-directory: frontend
+      run: npx electron-builder --linux
 
     - name: Build Electron app (Windows)
       if: matrix.os == 'windows-latest'
-      run: |
-        cd frontend
-        npx electron-builder --windows
+      working-directory: frontend
+      run: npx electron-builder --windows
 
     - name: Build Electron app (macOS)
       if: matrix.os == 'macos-latest'
-      run: |
-        cd frontend
-        npx electron-builder --mac
+      working-directory: frontend
+      run: npx electron-builder --mac
 
     - name: Upload Linux artifact
       if: matrix.os == 'ubuntu-latest'
