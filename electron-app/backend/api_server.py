@@ -142,10 +142,12 @@ async def check_data_consistency(request: CheckRequest):
             full_table_name = f"{db_name}.{table_name_with_suffix}"
             sql_query = f'SELECT * FROM "{table_name_with_suffix}" WHERE {where_clause}'
             add_log(f"SQL查询: {sql_query}", "SQL")
+            add_log(f"查询条件: {json.dumps(conditions)}")
 
             # 执行查询
             try:
                 conn = get_db_connection(db_name)
+                add_log(f"成功连接到数据库: {db_name}")
                 with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                     cursor.execute(sql_query)
                     results = cursor.fetchall()
@@ -155,6 +157,8 @@ async def check_data_consistency(request: CheckRequest):
                         "data": [dict(row) for row in results] if results else []
                     }
                     add_log(f"查询到 {len(results)} 条记录")
+                    if results:
+                        add_log(f"查询结果: {json.dumps(results[0], ensure_ascii=False)[:500]}...")
                 conn.close()
             except Exception as e:
                 add_log(f"查询失败: {str(e)}", "ERROR")
@@ -182,9 +186,11 @@ async def check_data_consistency(request: CheckRequest):
             where_clause = build_where_clause(conditions)
             sql_query = f'SELECT * FROM "{table_name_with_suffix}" WHERE {where_clause}'
             add_log(f"SQL查询: {sql_query}", "SQL")
+            add_log(f"查询条件: {json.dumps(conditions)}")
 
             try:
                 conn = get_db_connection(db_name)
+                add_log(f"成功连接到数据库: {db_name}")
                 with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                     cursor.execute(sql_query)
                     results = cursor.fetchall()
@@ -194,6 +200,8 @@ async def check_data_consistency(request: CheckRequest):
                         "data": [dict(row) for row in results] if results else []
                     }
                     add_log(f"查询到 {len(results)} 条记录")
+                    if results:
+                        add_log(f"查询结果: {json.dumps(results[0], ensure_ascii=False)[:500]}...")
                 conn.close()
             except Exception as e:
                 add_log(f"查询失败: {str(e)}", "ERROR")
