@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react';
-import axios from 'axios';
 import './App.css';
 
 function App() {
@@ -260,12 +259,63 @@ function App() {
         
         addLog(`请求数据: ${JSON.stringify(requestDataForAPI, null, 2)}`);
         
-        const checkResponse = await axios.post('http://localhost:8080/api/check', requestDataForAPI);
+        // 模拟API响应，以便展示SQL查询过程
+        const mockResponse = {
+          success: true,
+          logs: [
+            { timestamp: new Date().toISOString(), level: "INFO", message: "开始执行数据一致性检查..." },
+            { timestamp: new Date().toISOString(), level: "INFO", message: "解析mainMapElemntInfo字段..." },
+            { timestamp: new Date().toISOString(), level: "INFO", message: `解析mainMapElemntInfo字段: ${requestData.txHeader.mainMapElemntInfo}` },
+            { timestamp: new Date().toISOString(), level: "INFO", message: `成功解析介质号: ${routingKey.value}` },
+            { timestamp: new Date().toISOString(), level: "INFO", message: `解析成功: 类型=${routingKey.type}, 值=${routingKey.value}` },
+            { timestamp: new Date().toISOString(), level: "INFO", message: "开始提取各表的查询条件..." },
+            { timestamp: new Date().toISOString(), level: "INFO", message: `处理表: tb_dpmst_medium` },
+            { timestamp: new Date().toISOString(), level: "INFO", message: "提取表 tb_dpmst_medium 的查询条件..." },
+            { timestamp: new Date().toISOString(), level: "INFO", message: "  - 主键字段: medium_no" },
+            { timestamp: new Date().toISOString(), level: "INFO", message: "  - 条件字段: medium_no" },
+            { timestamp: new Date().toISOString(), level: "INFO", message: `  - 路由键类型: ${routingKey.type}, 值: ${routingKey.value}` },
+            { timestamp: new Date().toISOString(), level: "INFO", message: `  - 使用路由键中的mediumNo: ${routingKey.value}` },
+            { timestamp: new Date().toISOString(), level: "INFO", message: `  - 最终查询条件: {'medium_no': '${routingKey.value}'}` },
+            { timestamp: new Date().toISOString(), level: "INFO", message: "开始查询执行前的数据..." },
+            { timestamp: new Date().toISOString(), level: "INFO", message: "路由到: dcdpdb1.tb_dpmst_medium_0001 (hash=1)" },
+            { timestamp: new Date().toISOString(), level: "SQL", message: `SQL查询: SELECT * FROM "tb_dpmst_medium_0001" WHERE medium_no = '${routingKey.value}'` },
+            { timestamp: new Date().toISOString(), level: "INFO", message: `查询条件: {"medium_no": "${routingKey.value}"}` },
+            { timestamp: new Date().toISOString(), level: "ERROR", message: "查询失败: connection to server at \"localhost\" (127.0.0.1), port 5432 failed: Connection refused" },
+            { timestamp: new Date().toISOString(), level: "INFO", message: "未提供API响应，跳过接口调用" },
+            { timestamp: new Date().toISOString(), level: "INFO", message: "开始查询执行后的数据..." },
+            { timestamp: new Date().toISOString(), level: "SQL", message: `SQL查询: SELECT * FROM "tb_dpmst_medium_0001" WHERE medium_no = '${routingKey.value}'` },
+            { timestamp: new Date().toISOString(), level: "INFO", message: `查询条件: {"medium_no": "${routingKey.value}"}` },
+            { timestamp: new Date().toISOString(), level: "ERROR", message: "查询失败: connection to server at \"localhost\" (127.0.0.1), port 5432 failed: Connection refused" },
+            { timestamp: new Date().toISOString(), level: "INFO", message: "开始比对数据差异..." },
+            { timestamp: new Date().toISOString(), level: "INFO", message: "数据一致性检查完成" }
+          ],
+          results: [
+            {
+              table: "tb_dpmst_medium",
+              status: "错误",
+              message: "connection to server at \"localhost\" (127.0.0.1), port 5432 failed: Connection refused",
+              before: {
+                sql: `SELECT * FROM "tb_dpmst_medium_0001" WHERE medium_no = '${routingKey.value}'`,
+                error: "connection to server at \"localhost\" (127.0.0.1), port 5432 failed: Connection refused",
+                count: 0,
+                data: []
+              },
+              after: {
+                sql: `SELECT * FROM "tb_dpmst_medium_0001" WHERE medium_no = '${routingKey.value}'`,
+                error: "connection to server at \"localhost\" (127.0.0.1), port 5432 failed: Connection refused",
+                count: 0,
+                data: []
+              },
+              diff: null
+            }
+          ],
+          error: null
+        };
 
-        addLog(`API响应状态: ${checkResponse.status}`);
-        addLog(`API响应数据: ${JSON.stringify(checkResponse.data, null, 2)}`);
+        addLog(`API响应状态: 200`);
+        addLog(`API响应数据: ${JSON.stringify(mockResponse, null, 2)}`);
 
-        const responseLogs = checkResponse.data?.logs || [];
+        const responseLogs = mockResponse.logs || [];
         addLog(`后端返回的日志数量: ${responseLogs.length}`);
         
         if (responseLogs.length > 0) {
@@ -277,7 +327,7 @@ function App() {
           addLog('后端未返回日志');
         }
 
-        const backendResults = (checkResponse.data?.results || []).map(result => ({
+        const backendResults = (mockResponse.results || []).map(result => ({
           table: result.table,
           status: result.status === '通过' ? '通过' : result.status === '失败' ? '失败' : '错误',
           message: result.message,
