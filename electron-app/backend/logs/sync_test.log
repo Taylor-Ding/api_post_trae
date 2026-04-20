@@ -10,3 +10,9 @@
 2026-04-09 17:03:10,797 - data_consistency_checker - INFO - 路由到的库表: dcdpdb3.tb_dpmst_medium_0005
 2026-04-09 17:03:10,797 - data_consistency_checker - INFO - 开始调用业务接口，URL: http://localhost:8080/api/business
 2026-04-09 17:03:10,803 - data_consistency_checker - ERROR - 执行过程中发生错误: API call failed: HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/business (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [Errno 61] Connection refused"))
+2026-04-20 07:02:59,664 - data_consistency_checker - INFO - 开始查询接口触发前的数据状态，custNo: 00000194476241
+2026-04-20 07:02:59,666 - data_consistency_checker - ERROR - 执行过程中发生错误: connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (::1), port 5432 failed: Cannot assign requested address
+	Is the server running on that host and accepting TCP/IP connections?
+

@@ -248,16 +248,33 @@ function App() {
 
       addLog('调用后端API执行数据一致性检查...');
       try {
-        const checkResponse = await axios.post('http://localhost:8080/api/check', {
+        addLog('开始调用后端API...');
+        addLog('API URL: http://localhost:8080/api/check');
+        
+        const requestDataForAPI = {
           apiResponse: null,
           tables: tables.filter(t => t.name).map(t => t.name),
           requestData: requestData,
           routingKey: routingKey
-        });
+        };
+        
+        addLog(`请求数据: ${JSON.stringify(requestDataForAPI, null, 2)}`);
+        
+        const checkResponse = await axios.post('http://localhost:8080/api/check', requestDataForAPI);
+
+        addLog(`API响应状态: ${checkResponse.status}`);
+        addLog(`API响应数据: ${JSON.stringify(checkResponse.data, null, 2)}`);
 
         const responseLogs = checkResponse.data?.logs || [];
-        for (const log of responseLogs) {
-          addLog(log.message, log.level || 'INFO');
+        addLog(`后端返回的日志数量: ${responseLogs.length}`);
+        
+        if (responseLogs.length > 0) {
+          addLog('后端返回的日志:');
+          for (const log of responseLogs) {
+            addLog(`[后端] ${log.message}`, log.level || 'INFO');
+          }
+        } else {
+          addLog('后端未返回日志');
         }
 
         const backendResults = (checkResponse.data?.results || []).map(result => ({
@@ -270,17 +287,23 @@ function App() {
           }
         }));
 
+        addLog(`后端返回的结果数量: ${backendResults.length}`);
         setResults(backendResults);
         addLog('断言结果已生成');
         setTimeout(() => setActiveTab('result'), 800);
       } catch (apiError) {
         addLog(`API调用失败: ${apiError.message}`, 'ERROR');
-        if (apiError.response?.data?.logs) {
-          for (const log of apiError.response.data.logs) {
-            addLog(log.message, log.level || 'ERROR');
+        addLog(`API错误详情: ${JSON.stringify(apiError, null, 2)}`, 'ERROR');
+        if (apiError.response?.data) {
+          addLog(`API响应数据: ${JSON.stringify(apiError.response.data, null, 2)}`, 'ERROR');
+          if (apiError.response.data?.logs) {
+            addLog(`后端错误日志数量: ${apiError.response.data.logs.length}`, 'ERROR');
+            for (const log of apiError.response.data.logs) {
+              addLog(log.message, log.level || 'ERROR');
+            }
           }
         }
-        throw apiError;
+        // 不要抛出异常，让流程继续执行
       }
     } catch (err) {
       addLog(`执行失败: ${err.message}`, 'ERROR');
