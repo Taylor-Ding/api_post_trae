@@ -3,7 +3,8 @@ import axios from 'axios';
 import './App.css';
 
 function App() {
-  const [apiUrl, setApiUrl] = useState('http://localhost:8080/api/business');
+  const [apiUrl, setApiUrl] = useState('http://localhost:8080/api/check');
+  const apiEndpoint = 'http://localhost:8080/api/check';
   const [requestBody, setRequestBody] = useState(JSON.stringify({
     "txBody": {
       "txEntity": {
@@ -213,7 +214,7 @@ function App() {
 
     try {
       addLog('开始执行数据一致性检查...');
-      addLog(`请求地址: ${apiUrl}`);
+      addLog(`实际使用的API地址: ${apiEndpoint}`);
 
       let requestData;
       try {
@@ -248,14 +249,18 @@ function App() {
 
       addLog('调用后端API执行数据一致性检查...');
       try {
-        const checkResponse = await axios.post('http://localhost:8080/api/check', {
+        addLog(`开始调用API: ${apiEndpoint}`, 'INFO');
+        const checkResponse = await axios.post(apiEndpoint, {
           apiResponse: null,
           tables: tables.filter(t => t.name).map(t => t.name),
           requestData: requestData,
           routingKey: routingKey
         });
+        addLog('API调用成功，开始处理响应', 'INFO');
+        addLog(`响应数据: ${JSON.stringify(checkResponse.data)}`, 'INFO');
 
         const responseLogs = checkResponse.data?.logs || [];
+        addLog(`后端返回的日志数量: ${responseLogs.length}`, 'INFO');
         for (const log of responseLogs) {
           addLog(log.message, log.level || 'INFO');
         }
@@ -275,9 +280,13 @@ function App() {
         setTimeout(() => setActiveTab('result'), 800);
       } catch (apiError) {
         addLog(`API调用失败: ${apiError.message}`, 'ERROR');
-        if (apiError.response?.data?.logs) {
-          for (const log of apiError.response.data.logs) {
-            addLog(log.message, log.level || 'ERROR');
+        if (apiError.response) {
+          addLog(`响应状态码: ${apiError.response.status}`, 'ERROR');
+          addLog(`响应数据: ${JSON.stringify(apiError.response.data)}`, 'ERROR');
+          if (apiError.response.data?.logs) {
+            for (const log of apiError.response.data.logs) {
+              addLog(log.message, log.level || 'ERROR');
+            }
           }
         }
         throw apiError;
@@ -336,9 +345,8 @@ function App() {
             <div className="card-body">
               <input
                 type="text"
-                value={apiUrl}
-                onChange={(e) => setApiUrl(e.target.value)}
-                placeholder="输入API地址"
+                value={apiEndpoint}
+                readOnly
                 className="input"
               />
             </div>
