@@ -164,7 +164,9 @@ async def check_data_consistency(request: CheckRequest):
                 add_log(f"查询失败: {str(e)}", "ERROR")
                 before_data[table_name] = {
                     "sql": sql_query,
-                    "error": str(e)
+                    "error": str(e),
+                    "count": 0,
+                    "data": []
                 }
 
         # 4. 调用业务API（如果提供了响应）
@@ -207,7 +209,9 @@ async def check_data_consistency(request: CheckRequest):
                 add_log(f"查询失败: {str(e)}", "ERROR")
                 after_data[table_name] = {
                     "sql": sql_query,
-                    "error": str(e)
+                    "error": str(e),
+                    "count": 0,
+                    "data": []
                 }
 
         # 6. 比对数据差异
@@ -221,6 +225,15 @@ async def check_data_consistency(request: CheckRequest):
             after = after_data.get(table_name, {})
 
             if "error" in before or "error" in after:
+                # 确保before和after对象包含count和data字段
+                if "count" not in before:
+                    before["count"] = 0
+                if "data" not in before:
+                    before["data"] = []
+                if "count" not in after:
+                    after["count"] = 0
+                if "data" not in after:
+                    after["data"] = []
                 results.append({
                     "table": table_name,
                     "status": "错误",

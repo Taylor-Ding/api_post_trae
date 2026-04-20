@@ -255,7 +255,11 @@ function App() {
           routingKey: routingKey
         });
 
+        addLog(`API响应状态: ${checkResponse.status}`);
+        addLog(`API响应数据: ${JSON.stringify(checkResponse.data, null, 2)}`);
+
         const responseLogs = checkResponse.data?.logs || [];
+        addLog(`后端返回的日志数量: ${responseLogs.length}`);
         for (const log of responseLogs) {
           addLog(log.message, log.level || 'INFO');
         }
@@ -270,6 +274,7 @@ function App() {
           }
         }));
 
+        addLog(`后端返回的结果数量: ${backendResults.length}`);
         setResults(backendResults);
         addLog('断言结果已生成');
         setTimeout(() => setActiveTab('result'), 800);
@@ -280,7 +285,7 @@ function App() {
             addLog(log.message, log.level || 'ERROR');
           }
         }
-        throw apiError;
+        // 不要抛出异常，让流程继续执行
       }
     } catch (err) {
       addLog(`执行失败: ${err.message}`, 'ERROR');
