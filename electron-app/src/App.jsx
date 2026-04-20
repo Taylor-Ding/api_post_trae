@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react';
-import axios from 'axios';
 import './App.css';
 
 function App() {
