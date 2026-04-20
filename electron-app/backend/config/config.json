@@ -1,0 +1,35 @@
+{
+  "databases": {
+    "dcdpdb1": {
+      "host": "localhost",
+      "port": 5432,
+      "user": "postgres",
+      "password": "123456"
+    },
+    "dcdpdb2": {
+      "host": "localhost",
+      "port": 5432,
+      "user": "postgres",
+      "password": "123456"
+    },
+    "dcdpdb3": {
+      "host": "localhost",
+      "port": 5432,
+      "user": "postgres",
+      "password": "123456"
+    },
+    "dcdpdb4": {
+      "host": "localhost",
+      "port": 5432,
+      "user": "postgres",
+      "password": "123456"
+    }
+  },
+  "api_timeout": 30,
+  "ignore_fields": [
+    "update_time",
+    "version",
+    "trace_id",
+    "create_time"
+  ]
+}
